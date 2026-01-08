@@ -1,5 +1,5 @@
 use crate::{
-    FXY, TableConverter, TableType,
+    FXY, TableConverter,
     tables::{BitMap, BitMapEntry},
 };
 

@@ -5,11 +5,11 @@ use genlib::BUFRTableMPH;
 use genlib::prelude::BUFRTableBitMap;
 use genlib::tables::TableTypeTrait;
 
-use crate::decoder::*;
 use crate::errors::Result;
 #[cfg(feature = "opera")]
+#[allow(unused)]
 use crate::structs::GENCENTER;
-use crate::structs::versions::{BUFRMessage, MessageVersion};
+use crate::structs::versions::BUFRMessage;
 use crate::tables::*;
 
 #[derive(Clone)]

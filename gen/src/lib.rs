@@ -15,7 +15,6 @@ use rkyv::bytecheck::CheckBytes;
 use rkyv::rancor::Error;
 use rkyv::{Archive, Deserialize, Serialize};
 use serde::{Deserialize as SerdeDeserialize, Serialize as SerdeSerialize};
-use std::borrow::Borrow;
 use std::fmt::Debug;
 use std::io::{Cursor, Write};
 use std::path::Path;
@@ -276,53 +275,10 @@ impl<K: BUFRKey> PartialEq<K> for ArchivedFXY {
     }
 }
 
-// impl Borrow<FXY> for ArchivedFXY {
-//     fn borrow(&self) -> &FXY {
-//         // SAFETY: ArchivedFXY has the same memory layout as FXY
-//         unsafe { &*(self as *const ArchivedFXY as *const FXY) }
-//     }
-// }
-
 #[repr(C)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum TableType {
     B,
     D,
     BitMap,
-}
-
-#[cfg(test)]
-mod test {
-    use crate::{
-        BUFRTableMPH,
-        BufrTableMph,
-        FXY,
-        // wmo::{TableLoader, btable::BTableCsvLoader},
-        fr::{TableLoader, btable::BTableLoader as BTableCsvLoader},
-        prelude::{BUFRTableB, BUFRTableD},
-    };
-
-    #[test]
-    fn test() {
-        let table_loader = TableLoader::<BTableCsvLoader>::default();
-        BUFRTableB::build_from_csv(
-            table_loader,
-            // "/Users/xiang.li1/projects/rbufr/BUFR4/BUFRCREX_TableB_en_42.csv",
-            "/Users/xiang.li1/Downloads/tables 2/bufrtabb_16.csv",
-            "./test.bufrtbl",
-        )
-        .unwrap();
-    }
-
-    #[test]
-    fn load() {
-        let table = BUFRTableD::load_from_disk(
-            "/Users/xiang.li1/projects/rbufr/rbufr/tables/master/BUFR_TableD_16.bufrtbl",
-        )
-        .unwrap();
-
-        let x = table.lookup(&FXY::new(3, 21, 11)).unwrap();
-
-        println!("{:#?}", x);
-    }
 }

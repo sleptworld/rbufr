@@ -7,7 +7,6 @@ use rkyv::rancor::{Error, Strategy};
 use serde::Serialize as SerdeSerialize;
 use serde::de::DeserializeOwned;
 use std::fmt::{Debug, Display};
-use toml::Table;
 
 pub struct BTable;
 pub struct DTable;

@@ -1,3 +1,4 @@
+#[allow(unused)]
 use crate::{
     block::MessageBlock,
     errors::{Error, Result},
@@ -11,15 +12,12 @@ use genlib::{
     prelude::{BUFRTableB, BUFRTableBitMap, BUFRTableD},
     tables::{ArchivedBTableEntry, ArchivedDTableEntry},
 };
-use std::{
-    borrow::{Borrow, Cow},
-    fmt::Display,
-    ops::Deref,
-};
+use std::{borrow::Cow, fmt::Display, ops::Deref};
 
 const MISS_VAL: f64 = 99999.999999;
 
 pub struct Decoder {
+    #[allow(unused)]
     bufr_edition: u8,
     master_b: BUFRTableB,
     master_d: BUFRTableD,
@@ -53,13 +51,11 @@ impl<'a> Cache<'a> {
         }
     }
 
-    /// Get or cache B table entry
     #[inline(always)]
     fn get_b<K: BUFRKey>(&mut self, fxy: &K) -> Option<&'a ArchivedBTableEntry> {
         self.lookup_b_descriptor(fxy)
     }
 
-    /// Get or cache D table entry
     #[inline(always)]
     fn get_d<K: BUFRKey>(&mut self, fxy: &K) -> Option<&'a ArchivedDTableEntry> {
         self.lookup_d_descriptor(fxy)
@@ -139,18 +135,15 @@ struct FieldSpec<'a> {
 #[derive(Debug, Clone)]
 struct CompiledLayout<'a> {
     fields: Vec<FieldSpec<'a>>,
-    /// Total bits per element (for sanity checks)
     bits_per_element: usize,
 }
 
-/// Compiler state machine (mimics State but for compile-time analysis)
 #[derive(Debug)]
 struct CompilerState {
     common_scale: Option<i32>,
     common_ref_value: Option<i32>,
     common_data_width: Option<i32>,
     temp_operator: Option<i32>,
-    // We reject arrays with these:
     common_str_width: Option<usize>,
     local_data_width: Option<i32>,
 }
@@ -181,7 +174,6 @@ impl State {
 
     #[inline(always)]
     fn datawidth(&self, e: &ArchivedBTableEntry) -> u32 {
-        // 2-06-YYY: localized data width overrides everything else
         if let Some(local_width) = self.local_data_width {
             return local_width as u32;
         }
@@ -200,7 +192,6 @@ impl State {
                 .unwrap_or(e.bufr_datawidth_bits.to_native())
         };
 
-        // 2-07-YYY: increase width by 10*Y bits
         if let Some(op) = self.temp_operator {
             v + (10 * op) as u32
         } else {
@@ -1728,28 +1719,23 @@ impl Display for BUFRParsed<'_> {
 }
 
 impl BUFRParsed<'_> {
-    /// 获取记录数量
     pub fn record_count(&self) -> usize {
         self.records.len()
     }
 
-    /// 获取所有记录
     pub fn records(&self) -> &[BUFRRecord<'_>] {
         &self.records
     }
 
-    /// 紧凑格式显示（不带边框和统计信息）
     pub fn display_compact(&self) -> CompactDisplay<'_> {
         CompactDisplay(self)
     }
 
-    /// 详细格式显示（包含更多元数据）
     pub fn display_detailed(&self) -> DetailedDisplay<'_> {
         DetailedDisplay(self)
     }
 }
 
-/// 紧凑显示包装器
 pub struct CompactDisplay<'a>(&'a BUFRParsed<'a>);
 
 impl Display for CompactDisplay<'_> {
@@ -1761,7 +1747,6 @@ impl Display for CompactDisplay<'_> {
     }
 }
 
-/// 详细显示包装器
 pub struct DetailedDisplay<'a>(&'a BUFRParsed<'a>);
 
 impl Display for DetailedDisplay<'_> {
@@ -1769,7 +1754,6 @@ impl Display for DetailedDisplay<'_> {
         writeln!(f, "BUFR Parsed Data - Detailed View")?;
         writeln!(f)?;
 
-        // 统计信息
         let total_records = self.0.records.len();
         let single_count = self
             .0
@@ -1797,7 +1781,6 @@ impl Display for DetailedDisplay<'_> {
         writeln!(f, "  Repeated values:   {}", repeat_count)?;
         writeln!(f)?;
 
-        // 详细记录
         let max_name_len = self
             .0
             .records
@@ -1809,7 +1792,13 @@ impl Display for DetailedDisplay<'_> {
             .min(50);
 
         for (idx, record) in self.0.records.iter().enumerate() {
-            writeln!(f, "Record {}: {:<max_name_len$}", idx + 1, record, max_name_len = max_name_len)?;
+            writeln!(
+                f,
+                "Record {}: {:<max_name_len$}",
+                idx + 1,
+                record,
+                max_name_len = max_name_len
+            )?;
         }
 
         Ok(())
