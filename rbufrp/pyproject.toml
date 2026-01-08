@@ -1,0 +1,47 @@
+[project]
+name = "rbufrp"
+version = "0.1.0"
+description = "Fast BUFR (Binary Universal Form for the Representation of meteorological data) decoder written in Rust"
+readme = "README.md"
+authors = [{ name = "Tsuki", email = "qwin7989@gmail.com" }]
+requires-python = ">=3.8"
+dependencies = []
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Atmospheric Science",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Rust",
+]
+keywords = ["bufr", "meteorology", "weather", "decoder"]
+
+[project.scripts]
+rbufrp = "rbufrp:main"
+
+[tool.maturin]
+module-name = "rbufrp._core"
+python-packages = ["rbufrp"]
+python-source = "src"
+include = [
+    { path = "../rbufr/tables", format = "sdist" },
+    { path = "../rbufr/tables", format = "wheel" },
+]
+
+[tool.uv]
+cache-keys = [
+    { file = "pyproject.toml" },
+    { file = "src/**/*.rs" },
+    { file = "Cargo.toml" },
+    { file = "Cargo.lock" },
+]
+
+[build-system]
+requires = ["maturin>=1.0,<2.0"]
+build-backend = "maturin"
