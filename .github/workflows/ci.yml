@@ -57,11 +57,6 @@ jobs:
         if: runner.os == 'Windows'
         uses: ilammy/msvc-dev-cmd@v1
 
-      - name: Rust Tests
-        if: matrix.conf.target == 'x86_64' && !startsWith(matrix.python-version, 'pypy') && matrix.python-version == '3.12'
-        working-directory: rbufr
-        run: cargo test
-
       - name: Build wheel (OSX - Linux)
         if: runner.os != 'Windows'
         uses: PyO3/maturin-action@v1

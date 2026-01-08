@@ -22,17 +22,12 @@ classifiers = [
 ]
 keywords = ["bufr", "meteorology", "weather", "decoder"]
 
-[project.scripts]
-rbufrp = "rbufrp:main"
 
 [tool.maturin]
 module-name = "rbufrp._core"
 python-packages = ["rbufrp"]
 python-source = "src"
-include = [
-    { path = "../rbufr/tables", format = "sdist" },
-    { path = "../rbufr/tables", format = "wheel" },
-]
+include = ["rbufrp/tables/**/*"]
 
 [tool.uv]
 cache-keys = [
