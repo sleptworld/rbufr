@@ -1,5 +1,3 @@
-use std::collections::VecDeque;
-
 use crate::errors::Result;
 use crate::structs::{tools::parse_descriptors, versions::MessageVersion};
 use nom::{
@@ -306,22 +304,6 @@ pub struct Section5;
 fn parse_section5(input: &[u8]) -> IResult<&[u8], Section5> {
     let (input, _) = tag("7777")(input)?;
     Ok((input, Section5 {}))
-}
-
-fn parse_message(input: &[u8]) -> IResult<&[u8], ()> {
-    let (input, section0) = parse_section0(input)?;
-    let (input, section1) = parse_section1(input)?;
-    let (input, section2) = if section1.optional_section_present {
-        let (input, sec2) = parse_section2(input)?;
-        (input, Some(sec2))
-    } else {
-        (input, None)
-    };
-    let (input, section3) = parse_section3(input)?;
-    let (input, section4) = parse_section4(input)?;
-    let (input, section5) = parse_section5(input)?;
-
-    Ok((input, ()))
 }
 
 #[derive(Clone)]

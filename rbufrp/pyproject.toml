@@ -5,7 +5,9 @@ description = "Fast BUFR (Binary Universal Form for the Representation of meteor
 readme = "README.md"
 authors = [{ name = "Tsuki", email = "qwin7989@gmail.com" }]
 requires-python = ">=3.8"
-dependencies = []
+dependencies = [
+    "numpy>=1.24.4",
+]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Science/Research",

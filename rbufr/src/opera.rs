@@ -2,6 +2,7 @@ use crate::decoder::Value;
 
 pub struct OperaBitmapParser {
     values: Vec<Value>,
+    #[allow(unused)]
     dw: u8,
 }
 

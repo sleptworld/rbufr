@@ -1,8 +1,4 @@
-use nom::{
-    IResult,
-    bytes::complete::{tag, take},
-    number::complete::{be_u8, be_u16, be_u24},
-};
+use nom::{IResult, bytes::complete::take};
 pub(super) mod bit;
 pub(super) mod tools;
 pub mod versions;

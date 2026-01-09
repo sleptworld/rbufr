@@ -2,22 +2,15 @@ use crate::errors::Result;
 use crate::structs::versions::BUFRMessage;
 use crate::{block::BUFRFile, structs::versions::MessageVersion};
 use flate2::read::GzDecoder;
-use std::{
-    fs::File,
-    io::{BufReader, Cursor, Read, Seek, SeekFrom},
-    path::Path,
-};
+use std::io::{Cursor, Read, Seek, SeekFrom};
 
 const BUFR_PATTERN: &[u8] = b"BUFR";
 const BUFFER_SIZE: usize = 8192;
 
-pub fn parse<P: AsRef<Path>>(path: P) -> Result<BUFRFile> {
-    let file = File::open(path)?;
-    let mut reader = BufReader::new(file);
+pub fn parse(data: &[u8]) -> Result<BUFRFile> {
+    let magic_bytes = &data[..2];
+    let mut reader = Cursor::new(data);
 
-    let mut magic_bytes = [0u8; 2];
-    reader.read_exact(&mut magic_bytes)?;
-    reader.seek(SeekFrom::Start(0))?;
     if magic_bytes == [0x1F, 0x8B] {
         let mut gz_decoder = GzDecoder::new(reader);
         let mut bytes = vec![];

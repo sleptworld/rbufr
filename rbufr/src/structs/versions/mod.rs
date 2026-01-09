@@ -1,14 +1,13 @@
 pub mod v2;
 pub mod v4;
-use std::collections::VecDeque;
 
-pub(super) use super::{skip, skip1, skip2};
+pub(super) use super::skip1;
 use crate::errors::{Error, Result};
 use genlib::FXY;
 use nom::{
     IResult,
-    bytes::complete::{tag, take},
-    number::complete::{be_u8, be_u16, be_u24},
+    bytes::complete::tag,
+    number::complete::{be_u8, be_u24},
 };
 
 macro_rules! message {
@@ -177,7 +176,7 @@ pub struct TableInfo {
 
 #[derive(Clone)]
 struct Section0 {
-    pub total_length: u32,
+    pub _total_length: u32,
     pub version: u8,
 }
 
@@ -188,7 +187,7 @@ fn parse_section0(input: &[u8]) -> IResult<&[u8], Section0> {
     Ok((
         input,
         Section0 {
-            total_length,
+            _total_length: total_length,
             version: edition,
         },
     ))

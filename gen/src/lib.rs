@@ -152,10 +152,7 @@ where
     Copy,
     std::hash::Hash,
 )]
-#[rkyv(
-    // compare(PartialEq),
-    derive(Debug, Clone, Copy, std::hash::Hash, Eq)
-)]
+#[rkyv(derive(Debug, Clone, Copy, std::hash::Hash, Eq))]
 pub struct FXY {
     pub f: i32,
     pub x: i32,
@@ -167,8 +164,6 @@ impl FXY {
         FXY { f, x, y }
     }
     pub fn from_str(fxy_str: &str) -> anyhow::Result<Self> {
-        // let bytes = fxy_str.as_bytes();
-
         if fxy_str.len() != 6 {
             return Err(anyhow::anyhow!("Invalid FXY string length: {}", fxy_str));
         }

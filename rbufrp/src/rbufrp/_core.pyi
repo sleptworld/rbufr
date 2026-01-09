@@ -4,6 +4,8 @@ Type stubs for rbufrp._core
 This file provides type hints for the Rust extension module.
 """
 
+from typing import List, Optional, Iterator, Any
+
 class BUFRDecoder:
     """BUFR decoder for parsing BUFR files."""
     
@@ -11,19 +13,19 @@ class BUFRDecoder:
         """Create a new BUFR decoder instance."""
         ...
     
-    def decode(self, file_path: str) -> BUFRFile:
+    def decode(self, bytes: bytes) -> BUFRFile:
         """
-        Decode a BUFR file from the given path.
-        
+        Decode BUFR data from raw bytes.
+
         Args:
-            file_path: Path to the BUFR file to decode
-            
+            bytes: Raw BUFR data as bytes
+
         Returns:
             BUFRFile: Parsed BUFR file containing messages
-            
+
         Raises:
-            IOError: If the file cannot be read
-            ValueError: If the file is not a valid BUFR file
+            IOError: If the data cannot be read
+            ValueError: If the data is not valid BUFR format
         """
         ...
     
@@ -96,16 +98,129 @@ class BUFRMessage:
 class BUFRParsed:
     """
     Represents parsed BUFR data.
-    
+
     This class contains the decoded meteorological data from a BUFR message.
+    This class is iterable and indexable.
     """
-    
+
+    iter_index: int
+
     def __repr__(self) -> str:
         """
         Return a formatted string representation of the parsed data.
-        
+
         Returns:
             str: Human-readable representation of all records
+        """
+        ...
+
+    def __iter__(self) -> Iterator[BUFRRecord]:
+        """
+        Return an iterator over the BUFR records.
+
+        Returns:
+            Iterator[BUFRRecord]: Iterator over all records
+        """
+        ...
+
+    def __next__(self) -> BUFRRecord:
+        """
+        Return the next BUFR record in iteration.
+
+        Returns:
+            BUFRRecord: Next record
+
+        Raises:
+            StopIteration: When no more records are available
+        """
+        ...
+
+    def __len__(self) -> int:
+        """
+        Get the number of records in the parsed data.
+
+        Returns:
+            int: Number of records
+        """
+        ...
+
+    def __getitem__(self, index: int) -> BUFRRecord:
+        """
+        Get a record by index. Supports negative indexing.
+
+        Args:
+            index: Index of the record (can be negative)
+
+        Returns:
+            BUFRRecord: The requested record
+
+        Raises:
+            IndexError: If the index is out of range
+        """
+        ...
+
+    def record_count(self) -> int:
+        """
+        Get the number of records in the parsed data.
+
+        Returns:
+            int: Number of records
+        """
+        ...
+
+    def get_record(self, key: str) -> List[BUFRRecord]:
+        """
+        Get all records matching the specified key/name.
+
+        Args:
+            key: The name/key to search for
+
+        Returns:
+            List[BUFRRecord]: List of matching records (may be empty)
+        """
+        ...
+
+class BUFRRecord:
+    """
+    Represents a single BUFR data record.
+
+    A record contains a key (name) and a value, which can be:
+    - A single value (number, string, or None for missing)
+    - A list of values (for repeated data)
+    - A NumPy array (for array data)
+    """
+
+    def __repr__(self) -> str:
+        """
+        Return a string representation of the record.
+
+        Returns:
+            str: String representation
+        """
+        ...
+
+    def key(self) -> Optional[str]:
+        """
+        Get the key (name) of this record.
+
+        Returns:
+            Optional[str]: The record name, or None if unnamed
+        """
+        ...
+
+    def value(self) -> Any:
+        """
+        Get the value of this record.
+
+        The return type depends on the data:
+        - float: For single numeric values
+        - str: For single string values
+        - None: For missing values
+        - List[Union[float, str, None]]: For repeated values
+        - numpy.ndarray: For array data
+
+        Returns:
+            Any: The record value in an appropriate Python type
         """
         ...
 
@@ -144,6 +259,7 @@ __all__ = [
     "BUFRFile",
     "BUFRMessage",
     "BUFRParsed",
+    "BUFRRecord",
     "set_tables_path",
     "get_tables_path",
 ]

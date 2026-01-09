@@ -23,6 +23,7 @@ pub struct LocalTable {
     version: u8,
 }
 
+#[allow(unused)]
 #[derive(Debug, Clone, Copy)]
 pub struct BitmapTable {
     center: u16,
@@ -80,7 +81,10 @@ impl TableTrait for LocalTable {
                     Some(sc) => format!("{}", sc),
                     None => "0".to_string(),
                 };
-                let file_name = format!("local/BUFR_TableB_{}_{}.bufrtbl", sub_center_str, self.version);
+                let file_name = format!(
+                    "local/BUFR_TableB_{}_{}.bufrtbl",
+                    sub_center_str, self.version
+                );
                 get_table_path(file_name)
             }
             TableType::D => {
@@ -88,7 +92,10 @@ impl TableTrait for LocalTable {
                     Some(sc) => format!("{}", sc),
                     None => "0".to_string(),
                 };
-                let file_name = format!("local/BUFR_TableD_{}_{}.bufrtbl", sub_center_str, self.version);
+                let file_name = format!(
+                    "local/BUFR_TableD_{}_{}.bufrtbl",
+                    sub_center_str, self.version
+                );
                 get_table_path(file_name)
             }
             _ => {

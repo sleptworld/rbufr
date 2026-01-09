@@ -1,4 +1,3 @@
-#[allow(unused)]
 use crate::{
     block::MessageBlock,
     errors::{Error, Result},
@@ -135,6 +134,7 @@ struct FieldSpec<'a> {
 #[derive(Debug, Clone)]
 struct CompiledLayout<'a> {
     fields: Vec<FieldSpec<'a>>,
+    #[allow(unused)]
     bits_per_element: usize,
 }
 
@@ -144,6 +144,7 @@ struct CompilerState {
     common_ref_value: Option<i32>,
     common_data_width: Option<i32>,
     temp_operator: Option<i32>,
+    #[allow(unused)]
     common_str_width: Option<usize>,
     local_data_width: Option<i32>,
 }
@@ -1056,7 +1057,7 @@ impl Value {
 pub struct BitInput<'a>(&'a [u8], usize);
 
 impl<'a> BitInput<'a> {
-    pub fn new(input: &[u8]) -> BitInput {
+    pub fn new(input: &[u8]) -> BitInput<'_> {
         BitInput(input, 0)
     }
 
@@ -1344,30 +1345,11 @@ where
     Self: Sized,
 {
     fn push(&mut self, value: Value, name: &'a str, unit: &'a str);
-
-    fn start_repeating<'b>(&'b mut self, time: usize) -> Repeating<'a, 'b>;
 }
 
 impl<'a> Container<'a> for BUFRParsed<'a> {
     fn push(&mut self, value: Value, name: &'a str, unit: &'a str) {
         self.push(value, name, unit);
-    }
-
-    fn start_repeating<'s>(&'s mut self, time: usize) -> Repeating<'a, 's> {
-        self.start_repeating(time)
-    }
-}
-
-impl<'a, 'b> Container<'a> for Repeating<'a, 'b> {
-    fn push(&mut self, value: Value, _name: &'a str, _unit: &'a str) {
-        self.push(value);
-    }
-
-    fn start_repeating<'s>(&'s mut self, time: usize) -> Repeating<'a, 's> {
-        Repeating {
-            parsed: self.parsed,
-            values: Vec::with_capacity(time),
-        }
     }
 }
 
@@ -1387,13 +1369,6 @@ impl<'a> BUFRParsed<'a> {
             values: BUFRData::Single(value),
             unit: Some(Cow::Borrowed(unit)),
         });
-    }
-
-    fn start_repeating<'s>(&'s mut self, time: usize) -> Repeating<'a, 's> {
-        Repeating {
-            parsed: self,
-            values: Vec::with_capacity(time),
-        }
     }
 
     fn start_array<'s>(&'s mut self, time: usize) -> Array<'a, 's> {
@@ -1420,35 +1395,11 @@ impl<'a> Array<'a, '_> {
         self.values = values;
     }
 
-    fn push(&mut self, v: f64) {
-        self.values.push(v);
-    }
-
     fn finish(self, name: Option<&'a str>, unit: Option<&'a str>) {
         let recording = BUFRRecord {
             name: name.map(|n| Cow::Borrowed(n)),
             values: BUFRData::Array(self.values),
             unit: unit.map(|u| Cow::Borrowed(u)),
-        };
-        self.parsed.records.push(recording);
-    }
-}
-
-struct Repeating<'a, 's> {
-    parsed: &'s mut BUFRParsed<'a>,
-    values: Vec<Value>,
-}
-
-impl<'a, 's> Repeating<'a, 's> {
-    fn push(&mut self, value: Value) {
-        self.values.push(value);
-    }
-
-    fn finish(self) {
-        let recording = BUFRRecord {
-            name: None,
-            values: BUFRData::Repeat(self.values),
-            unit: None,
         };
         self.parsed.records.push(recording);
     }
@@ -1832,13 +1783,6 @@ impl Descs<'_> {
         match self {
             Descs::Raw(d) => d.len(),
             Descs::Archived(d) => d.len(),
-        }
-    }
-
-    fn total_bits(&self, state: &State, cache: &mut Cache) -> Result<usize> {
-        match self {
-            Descs::Raw(d) => self._total_bits(state, cache, d),
-            Descs::Archived(d) => self._total_bits(state, cache, d),
         }
     }
 

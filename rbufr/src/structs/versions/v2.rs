@@ -1,5 +1,3 @@
-use std::collections::VecDeque;
-
 use genlib::FXY;
 use nom::{
     IResult,
@@ -33,7 +31,7 @@ impl MessageVersion for BUFRMessageV2 {
         };
         let (input, section3) = parse_section3(input)?;
         let (input, section4) = parse_section4(input)?;
-        let (input, _section5) = parse_section5(input)?;
+        let (_input, _section5) = parse_section5(input)?;
 
         Ok(BUFRMessageV2 {
             section0,
