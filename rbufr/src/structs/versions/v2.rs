@@ -8,11 +8,10 @@ use nom::{
 use crate::errors::Result;
 use crate::structs::{tools::parse_descriptors, versions::MessageVersion};
 
-use super::skip1;
+use super::{Section2, parse_section0, parse_section2, skip1};
 
 #[derive(Clone)]
 pub struct BUFRMessageV2 {
-    pub section0: Section0,
     pub section1: Section1,
     pub section2: Option<Section2>,
     pub section3: Section3,
@@ -21,7 +20,7 @@ pub struct BUFRMessageV2 {
 
 impl MessageVersion for BUFRMessageV2 {
     fn parse(input: &[u8]) -> crate::errors::Result<Self> {
-        let (input, section0) = parse_section0(input)?;
+        let (input, _) = parse_section0(input)?;
         let (input, section1) = parse_section1(input)?;
         let (input, section2) = if section1.optional_section_present {
             let (input, sec2) = parse_section2(input)?;
@@ -34,7 +33,6 @@ impl MessageVersion for BUFRMessageV2 {
         let (_input, _section5) = parse_section5(input)?;
 
         Ok(BUFRMessageV2 {
-            section0,
             section1,
             section2,
             section3,
@@ -70,25 +68,6 @@ impl MessageVersion for BUFRMessageV2 {
     fn data_block(&self) -> Result<&[u8]> {
         Ok(&self.section4.data)
     }
-}
-
-#[derive(Clone)]
-pub struct Section0 {
-    pub total_length: u32,
-    pub version: u8,
-}
-
-fn parse_section0(input: &[u8]) -> IResult<&[u8], Section0> {
-    let (input, _) = tag("BUFR")(input)?;
-    let (input, total_length) = be_u24(input)?;
-    let (input, edition) = be_u8(input)?;
-    Ok((
-        input,
-        Section0 {
-            total_length,
-            version: edition,
-        },
-    ))
 }
 
 #[derive(Clone, Debug)]
@@ -162,25 +141,6 @@ fn parse_section1(input: &[u8]) -> IResult<&[u8], Section1> {
             day,
             hour,
             minute,
-        },
-    ))
-}
-
-#[derive(Clone)]
-pub struct Section2 {
-    pub length: usize,
-    pub data: Vec<u8>,
-}
-
-fn parse_section2(input: &[u8]) -> IResult<&[u8], Section2> {
-    let (input, length) = be_u24(input)?;
-    let (input, _) = skip1(input)?;
-    let (input, data) = take(length - 4)(input)?;
-    Ok((
-        input,
-        Section2 {
-            length: length as usize,
-            data: data.to_vec(),
         },
     ))
 }

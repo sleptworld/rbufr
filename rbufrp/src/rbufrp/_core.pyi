@@ -95,6 +95,15 @@ class BUFRMessage:
         """
         ...
 
+    def section2(self) -> Optional[Section2]:
+        """
+        Get Section 2 of the BUFR message, if present.
+
+        Returns:
+            Optional[Section2]: Section 2 object or None if not present
+        """
+
+
 class BUFRParsed:
     """
     Represents parsed BUFR data.
@@ -223,6 +232,51 @@ class BUFRRecord:
             Any: The record value in an appropriate Python type
         """
         ...
+
+class Section2:
+    """
+    Represents Section 2 of a BUFR message.
+
+    Section 2 contains optional metadata about the BUFR message.
+    """
+
+    def __repr__(self) -> str:
+        """
+        Return a string representation of Section 2.
+
+        Returns:
+            str: String representation
+        """
+        ...
+
+    def len(self) -> int:
+        """
+        Get the length of Section 2 in bytes.
+
+        Returns:
+            int: Length in bytes
+        """
+        ...
+
+    def is_empty(self) -> bool:
+        """
+        Check if Section 2 is empty.
+
+        Returns:
+            bool: True if Section 2 is empty, False otherwise
+        """
+        ...
+
+    def get_raw_bytes(self) -> bytes:
+        """
+        Get the raw bytes of Section 2.
+
+        Returns:
+            bytes: Raw byte content of Section 2
+        """
+        ...
+
+    
 
 def set_tables_path(path: str) -> None:
     """

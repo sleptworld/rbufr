@@ -115,6 +115,32 @@ mod _core {
         fn version(&self) -> u8 {
             self.message.version()
         }
+
+        fn section2(&self) -> Option<Section2> {
+            self.message
+                .section2()
+                .map(|s| Section2 { inner: s.clone() })
+        }
+    }
+
+    #[pyclass]
+    struct Section2 {
+        inner: librbufr::structs::versions::Section2,
+    }
+
+    #[pymethods]
+    impl Section2 {
+        fn len(&self) -> usize {
+            self.inner.length
+        }
+
+        fn is_empty(&self) -> bool {
+            self.inner.length == 0
+        }
+
+        fn get_raw_bytes(&self) -> Vec<u8> {
+            self.inner.data.clone()
+        }
     }
 
     #[pyclass]
