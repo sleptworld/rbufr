@@ -1,4 +1,5 @@
 pub mod v2;
+pub mod v3;
 pub mod v4;
 
 pub(super) use super::skip1;
@@ -6,7 +7,7 @@ use crate::errors::{Error, Result};
 use genlib::FXY;
 use nom::{
     IResult,
-    bytes::complete::tag,
+    bytes::complete::{tag, take},
     number::complete::{be_u8, be_u24},
 };
 
@@ -112,28 +113,43 @@ macro_rules! message {
                 }
             }
         }
-    };
-}
 
-message!((V2, v2::BUFRMessageV2, 2), (V4, v4::BUFRMessageV4, 4));
+    impl BUFRMessage {
+        pub fn version(&self) -> u8 {
+            match self {
+                $(
+                    BUFRMessage::$version(_) => $v,
+                )+
+            }
+        }
 
-impl BUFRMessage {
-    pub fn version(&self) -> u8 {
-        match self {
-            BUFRMessage::V2(_) => 2,
-            BUFRMessage::V4(_) => 4,
+        pub fn section2(&self) -> Option<&Section2> {
+            match self {
+                $(
+                    BUFRMessage::$version(msg) => msg.section2.as_ref(),
+                )+
+            }
         }
     }
-}
 
-impl std::fmt::Display for BUFRMessage {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            BUFRMessage::V2(msg) => msg.description(f),
-            BUFRMessage::V4(msg) => msg.description(f),
+    impl std::fmt::Display for BUFRMessage {
+        fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+            match self {
+                $(
+                    BUFRMessage::$version(msg) => msg.description(f),
+                )+
+            }
         }
+
     }
 }
+}
+
+message!(
+    (V2, v2::BUFRMessageV2, 2),
+    (V3, v3::BUFRMessageV3, 3),
+    (V4, v4::BUFRMessageV4, 4)
+);
 
 pub trait MessageVersion: Sized {
     fn parse(input: &[u8]) -> Result<Self>;
@@ -189,6 +205,25 @@ fn parse_section0(input: &[u8]) -> IResult<&[u8], Section0> {
         Section0 {
             _total_length: total_length,
             version: edition,
+        },
+    ))
+}
+
+#[derive(Clone)]
+pub struct Section2 {
+    pub length: usize,
+    pub data: Vec<u8>,
+}
+
+fn parse_section2(input: &[u8]) -> IResult<&[u8], Section2> {
+    let (input, length) = be_u24(input)?;
+    let (input, _) = skip1(input)?;
+    let (input, data) = take(length - 4)(input)?;
+    Ok((
+        input,
+        Section2 {
+            length: length as usize,
+            data: data.to_vec(),
         },
     ))
 }

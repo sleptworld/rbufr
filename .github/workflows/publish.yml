@@ -1,0 +1,40 @@
+name: Publish to Private PyPI (Manual)
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag to publish (e.g., v0.1.0)'
+        required: true
+        type: string
+
+jobs:
+  pypi-publish:
+    name: Upload release to Private PyPI
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://test.pypi.org/p/rbufrp
+    permissions:
+      id-token: write
+    steps:
+    - name: Download artifacts from release
+      run: |
+        gh release download ${{ inputs.tag }} -R ${{ github.repository }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Move packages to clean directory
+      run: |
+        mkdir -p dist
+        mv *.whl dist/ 2>/dev/null || true
+        mv *.tar.gz dist/ 2>/dev/null || true
+        rm -f dist/*wasm32.whl
+        ls -lhs dist/
+
+    - name: Publish package distributions to Private PyPI
+      uses: pypa/gh-action-pypi-publish@release/v1
+      with:
+        repository-url: https://test.pypi.org/legacy/
+        packages-dir: ./dist
+        verbose: true

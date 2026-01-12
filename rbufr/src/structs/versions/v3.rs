@@ -10,14 +10,14 @@ use nom::{
 use super::{Section0, Section2, parse_section0, parse_section2, skip1};
 
 #[derive(Clone)]
-pub struct BUFRMessageV4 {
+pub struct BUFRMessageV3 {
     pub section1: Section1,
     pub section2: Option<Section2>,
     pub section3: Section3,
     pub section4: Section4,
 }
 
-impl MessageVersion for BUFRMessageV4 {
+impl MessageVersion for BUFRMessageV3 {
     fn parse(input: &[u8]) -> crate::errors::Result<Self> {
         let (input, _) = parse_section0(input)?;
         let (input, section1) = parse_section1(input)?;
@@ -31,7 +31,7 @@ impl MessageVersion for BUFRMessageV4 {
         let (input, section4) = parse_section4(input)?;
         let (_input, _section5) = parse_section5(input)?;
 
-        Ok(BUFRMessageV4 {
+        Ok(BUFRMessageV3 {
             section1,
             section2,
             section3,
@@ -73,55 +73,51 @@ impl MessageVersion for BUFRMessageV4 {
 
 #[derive(Clone, Debug)]
 pub struct Section1 {
-    pub length: usize,                      // octet 1-3
-    pub master_table: u8,                   // octet 4
-    pub centre: u16,                        // octet 5-6
-    pub subcentre: u16,                     // octet 7-8
-    pub update_sequence_number: u8,         // octet 9
-    pub optional_section_present: bool,     // octet 10 bit1
-    pub data_category: u8,                  // octet 11
-    pub international_data_subcategory: u8, // octet 12
-    pub local_subcategory: u8,              // octet 13
-    pub master_table_version: u8,           // octet 14
-    pub local_table_version: u8,            // octet 15
-    pub year: u16,                          // octet 16-17 (4 digits)
-    pub month: u8,                          // octet 18
-    pub day: u8,                            // octet 19
-    pub hour: u8,                           // octet 20
-    pub minute: u8,                         // octet 21
-    pub second: u8,                         // octet 22
-    pub local_use: Vec<u8>,                 // octet 23-
+    pub length: usize,                  // octet 1-3
+    pub master_table: u8,               // octet 4
+    pub subcentre: u8,                  // octet 5
+    pub centre: u8,                     // octet 6
+    pub update_sequence_number: u8,     // octet 7
+    pub optional_section_present: bool, // octet 8 bit1
+    pub data_category: u8,              // octet 9
+    pub sub_category: u8,               // octet 10
+    pub master_table_version: u8,       // octet 11
+    pub local_table_version: u8,        // octet 12
+    pub year: u8,                       // octet 13
+    pub month: u8,                      // octet 14
+    pub day: u8,                        // octet 15
+    pub hour: u8,                       // octet 16
+    pub minute: u8,                     // octet 17
+    pub local_use: Vec<u8>,             // octet 18-
 }
 
 fn parse_section1(input: &[u8]) -> IResult<&[u8], Section1> {
     let (input, length_u24) = be_u24(input)?;
     let length = length_u24 as usize;
 
-    const FIXED_LEN: usize = 22;
+    const FIXED_LEN: usize = 18;
     if length < FIXED_LEN {
         return Err(nom::Err::Error(Error::new(input, ErrorKind::LengthValue)));
     }
 
     let (input, master_table) = be_u8(input)?;
-    let (input, centre) = be_u16(input)?;
-    let (input, subcentre) = be_u16(input)?;
+    let (input, subcentre) = be_u8(input)?;
+    let (input, centre) = be_u8(input)?;
     let (input, update_sequence_number) = be_u8(input)?;
 
     let (input, flags) = be_u8(input)?;
     let optional_section_present = (flags & 0x80) != 0;
 
     let (input, data_category) = be_u8(input)?;
-    let (input, international_data_subcategory) = be_u8(input)?;
-    let (input, local_subcategory) = be_u8(input)?;
+    let (input, sub_category) = be_u8(input)?;
     let (input, master_table_version) = be_u8(input)?;
     let (input, local_table_version) = be_u8(input)?;
 
-    let (input, year) = be_u16(input)?;
+    let (input, year) = be_u8(input)?;
     let (input, month) = be_u8(input)?;
     let (input, day) = be_u8(input)?;
     let (input, hour) = be_u8(input)?;
     let (input, minute) = be_u8(input)?;
-    let (input, second) = be_u8(input)?;
 
     let local_len = length - FIXED_LEN;
     let (input, local_bytes) = take(local_len)(input)?;
@@ -131,13 +127,12 @@ fn parse_section1(input: &[u8]) -> IResult<&[u8], Section1> {
         Section1 {
             length,
             master_table,
-            centre,
             subcentre,
+            centre,
+            sub_category,
             update_sequence_number,
             optional_section_present,
             data_category,
-            international_data_subcategory,
-            local_subcategory,
             master_table_version,
             local_table_version,
             year,
@@ -145,7 +140,6 @@ fn parse_section1(input: &[u8]) -> IResult<&[u8], Section1> {
             day,
             hour,
             minute,
-            second,
             local_use: local_bytes.to_vec(),
         },
     ))
@@ -175,12 +169,7 @@ impl std::fmt::Display for Section1 {
         writeln!(f)?;
         writeln!(f, "  Data Classification:")?;
         writeln!(f, "    Category:            {}", self.data_category)?;
-        writeln!(
-            f,
-            "    International Sub:   {}",
-            self.international_data_subcategory
-        )?;
-        writeln!(f, "    Local Sub:           {}", self.local_subcategory)?;
+        writeln!(f, "    Sub Category:   {}", self.sub_category)?;
         writeln!(f)?;
         writeln!(f, "  Table Versions:")?;
         writeln!(
@@ -193,8 +182,8 @@ impl std::fmt::Display for Section1 {
         writeln!(f, "  Observation Time:")?;
         writeln!(
             f,
-            "    DateTime:            {:04}-{:02}-{:02} {:02}:{:02}:{:02} UTC",
-            self.year, self.month, self.day, self.hour, self.minute, self.second
+            "    DateTime:            {:04}-{:02}-{:02} {:02}:{:02} UTC",
+            self.year, self.month, self.day, self.hour, self.minute
         )?;
         writeln!(f)?;
         writeln!(f, "  Optional Data:")?;
