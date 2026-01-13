@@ -52,7 +52,7 @@ mod _core {
                 ),
             })?;
 
-            Ok(BUFRFile(parsed))
+            Ok(BUFRFile(parsed, 0))
         }
 
         fn parse_message(&self, message: &BUFRMessage) -> PyResult<BUFRParsed> {
@@ -78,12 +78,34 @@ mod _core {
     }
 
     #[pyclass]
-    struct BUFRFile(IB);
+    struct BUFRFile(IB, usize);
 
     #[pymethods]
     impl BUFRFile {
         fn __repr__(&self) -> String {
             format!("BUFRFile with {} messages", self.0.message_count())
+        }
+
+        fn __len__(&self) -> usize {
+            self.0.message_count()
+        }
+
+        fn __iter__(mut slf: PyRefMut<'_, Self>) -> PyRefMut<'_, Self> {
+            slf.1 = 0;
+            slf
+        }
+
+        fn __next__(mut slf: PyRefMut<'_, Self>) -> Option<BUFRMessage> {
+            let current_index = slf.1;
+            let message_count = slf.0.message_count();
+
+            if current_index < message_count {
+                slf.1 += 1;
+                let message = slf.0.message_at(current_index).unwrap().clone();
+                Some(BUFRMessage { message })
+            } else {
+                None
+            }
         }
 
         fn message_count(&self) -> usize {

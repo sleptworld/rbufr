@@ -47,31 +47,62 @@ class BUFRDecoder:
 class BUFRFile:
     """
     Represents a parsed BUFR file containing one or more messages.
+    This class is iterable and supports len().
     """
-    
+
     def __repr__(self) -> str:
         """Return a string representation of the BUFR file."""
         ...
-    
-    def message_count(self) -> int:
+
+    def __len__(self) -> int:
         """
         Get the number of messages in the file.
-        
+
         Returns:
             int: Number of BUFR messages
         """
         ...
-    
+
+    def __iter__(self) -> Iterator[BUFRMessage]:
+        """
+        Return an iterator over the BUFR messages.
+
+        Returns:
+            Iterator[BUFRMessage]: Iterator over all messages
+        """
+        ...
+
+    def __next__(self) -> BUFRMessage:
+        """
+        Return the next BUFR message in iteration.
+
+        Returns:
+            BUFRMessage: Next message
+
+        Raises:
+            StopIteration: When no more messages are available
+        """
+        ...
+
+    def message_count(self) -> int:
+        """
+        Get the number of messages in the file.
+
+        Returns:
+            int: Number of BUFR messages
+        """
+        ...
+
     def get_message(self, index: int) -> BUFRMessage:
         """
         Get a specific message by index.
-        
+
         Args:
             index: Zero-based index of the message
-            
+
         Returns:
             BUFRMessage: The requested message
-            
+
         Raises:
             IndexError: If the index is out of range
         """
@@ -314,6 +345,7 @@ __all__ = [
     "BUFRMessage",
     "BUFRParsed",
     "BUFRRecord",
+    "Section2",
     "set_tables_path",
     "get_tables_path",
 ]

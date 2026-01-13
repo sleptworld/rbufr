@@ -602,25 +602,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "gentools"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "bincode",
- "binout",
- "byteorder",
- "clap",
- "csv",
- "glob",
- "memmap2",
- "ph",
- "regex",
- "rkyv",
- "serde",
- "toml",
-]
-
-[[package]]
 name = "getrandom"
 version = "0.3.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1404,14 +1385,23 @@ name = "rbufr"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "bincode",
+ "binout",
+ "byteorder",
+ "clap",
  "csv",
  "encoding_rs",
  "flate2",
- "gentools",
+ "glob",
+ "memmap2",
  "nom",
+ "ph",
+ "regex",
+ "rkyv",
  "rustc-hash",
  "serde",
  "thiserror 2.0.17",
+ "toml",
 ]
 
 [[package]]

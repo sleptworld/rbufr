@@ -1,13 +1,14 @@
-use crate::{
+pub mod btable;
+pub mod dtable;
+use csv::ReaderBuilder;
+use librbufr::core::{
     TableConverter,
     tables::{TableEntryFull, TableTypeTrait},
 };
-use csv::{ReaderBuilder, StringRecord};
-pub mod btable;
-pub mod dtable;
+use std::fmt::Debug;
 
-pub type FRDTableLoader = TableLoader<dtable::FRDTableLoader>;
-pub type FRBTableLoader = TableLoader<btable::BTableLoader>;
+pub type WMODTableLoader = TableLoader<dtable::DTableCsvLoader>;
+pub type WMOBTableLoader = TableLoader<btable::BTableCsvLoader>;
 
 #[derive(Default)]
 pub struct TableLoader<C: EntryLoader> {
@@ -20,38 +21,29 @@ impl<C: EntryLoader> TableLoader<C> {
         path: P,
         loader: &mut C,
     ) -> anyhow::Result<Vec<C::Output>> {
-        let path = path.as_ref();
         let mut entries = vec![];
         let mut rdr = ReaderBuilder::new()
-            .has_headers(false)
-            .delimiter(b';')
-            .flexible(true)
-            .from_path(path)?;
+            .has_headers(true)
+            .delimiter(b',')
+            .flexible(true) // Allow variable number of fields
+            .from_path(path.as_ref())?;
 
-        let mut line_num = 1;
-        for result in rdr.records() {
+        let mut line_num = 1; // Start at 1 for header
+        for result in rdr.deserialize() {
             line_num += 1;
             match result {
-                Ok(record) => match loader.process_entry(record) {
-                    Ok(Some(processed_entry)) => {
-                       entries.push(processed_entry);
+                Ok(record) => {
+                    let record: C::RawEntry = record;
+                    if let Some(processed_entry) = loader.process_entry(record)? {
+                        entries.push(processed_entry);
                     }
-                    Err(e) => {
-                        eprintln!(
-                            "Warning: Skipping line {} in {}: {}",
-                            line_num,
-                            path.display(),
-                            e
-                        );
-                    }
-
-                    _ => {}
-                },
+                }
                 Err(e) => {
+                    // Log the error but continue processing
                     eprintln!(
                         "Warning: Skipping line {} in {}: {}",
                         line_num,
-                        path.display(),
+                        path.as_ref().display(),
                         e
                     );
                 }
@@ -61,16 +53,17 @@ impl<C: EntryLoader> TableLoader<C> {
         if let Some(processed_entry) = loader.finish()? {
             entries.push(processed_entry);
         }
-
         Ok(entries)
     }
 }
 
 pub trait EntryLoader: Default {
     type Output: TableEntryFull;
+    type RawEntry: for<'de> serde::Deserialize<'de> + Debug;
     type TableType: TableTypeTrait;
 
-    fn process_entry(&mut self, raw: StringRecord) -> anyhow::Result<Option<Self::Output>>;
+    fn process_entry(&mut self, raw: Self::RawEntry) -> anyhow::Result<Option<Self::Output>>;
+
     fn finish(&mut self) -> anyhow::Result<Option<Self::Output>> {
         Ok(None)
     }

@@ -1,6 +1,6 @@
 [project]
 name = "rbufrp"
-version = "0.1.0"
+version = "0.1.1"
 description = "Fast BUFR (Binary Universal Form for the Representation of meteorological data) decoder written in Rust"
 readme = "README.md"
 authors = [{ name = "Tsuki", email = "qwin7989@gmail.com" }]

@@ -1,5 +1,5 @@
 use super::EntryLoader;
-use crate::{
+use librbufr::core::{
     FXY,
     tables::{BTable, BTableEntry},
 };

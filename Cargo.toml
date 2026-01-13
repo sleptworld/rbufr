@@ -1,2 +1,2 @@
 [workspace]
-members = ["rbufr", "gen", "rbufrp"]
+members = ["rbufr", "rbufrp"]

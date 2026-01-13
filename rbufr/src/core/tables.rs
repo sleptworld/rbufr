@@ -1,4 +1,4 @@
-use crate::FXY;
+use super::FXY;
 use rkyv::Archive;
 use rkyv::api::high::{HighDeserializer, HighSerializer, HighValidator};
 use rkyv::bytecheck::CheckBytes;
@@ -10,7 +10,6 @@ use std::fmt::{Debug, Display};
 
 pub struct BTable;
 pub struct DTable;
-
 pub struct BitMap;
 
 pub trait TableTypeTrait
@@ -18,21 +17,21 @@ where
     <Self::EntryType as Archive>::Archived: for<'a> CheckBytes<HighValidator<'a, Error>>,
 {
     type EntryType: TableEntryFull;
-    const TABLE_TYPE: crate::TableType;
+    const TABLE_TYPE: super::TableType;
 }
 
 impl TableTypeTrait for BTable {
-    type EntryType = crate::tables::BTableEntry;
-    const TABLE_TYPE: crate::TableType = crate::TableType::B;
+    type EntryType = super::tables::BTableEntry;
+    const TABLE_TYPE: super::TableType = super::TableType::B;
 }
 impl TableTypeTrait for DTable {
-    type EntryType = crate::tables::DTableEntry;
-    const TABLE_TYPE: crate::TableType = crate::TableType::D;
+    type EntryType = super::tables::DTableEntry;
+    const TABLE_TYPE: super::TableType = super::TableType::D;
 }
 
 impl TableTypeTrait for BitMap {
-    type EntryType = crate::tables::BitMapEntry;
-    const TABLE_TYPE: crate::TableType = crate::TableType::BitMap;
+    type EntryType = super::tables::BitMapEntry;
+    const TABLE_TYPE: super::TableType = super::TableType::BitMap;
 }
 
 pub trait TableEntry:
@@ -49,8 +48,6 @@ pub trait TableEntry:
 {
     fn fxy(&self) -> FXY;
 }
-
-// 148 |     fn get(&self, fxy: FXY) -> Option<T> where for<'a> <T as TableEntryFull>::Archived: CheckBytes<Strategy<Validator<ArchiveValidator<'a>, SharedValidator>, rkyv::rancor::Error>>
 
 pub trait TableEntryFull: TableEntry {
     type Archived: for<'a> rkyv::Deserialize<Self, HighDeserializer<Error>>

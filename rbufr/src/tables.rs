@@ -1,6 +1,6 @@
+pub use crate::core::prelude::{BUFRTableB, BUFRTableD, TableType};
+use crate::core::{prelude::*, tables::TableTypeTrait};
 use crate::errors::Result;
-pub use genlib::prelude::{BUFRTableB, BUFRTableD, TableType};
-use genlib::{prelude::*, tables::TableTypeTrait};
 use std::path::PathBuf;
 
 pub trait TableTrait {

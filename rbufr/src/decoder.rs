@@ -1,15 +1,15 @@
+#[cfg(feature = "opera")]
+use crate::core::tables::ArchivedBitMapEntry;
+use crate::core::{
+    ArchivedFXY, BUFRKey, FXY,
+    prelude::{BUFRTableB, BUFRTableBitMap, BUFRTableD},
+    tables::{ArchivedBTableEntry, ArchivedDTableEntry},
+};
 use crate::{
     block::MessageBlock,
     errors::{Error, Result},
     structs::versions::MessageVersion,
     tables::{LocalTable, TableLoader},
-};
-#[cfg(feature = "opera")]
-use genlib::tables::ArchivedBitMapEntry;
-use genlib::{
-    ArchivedFXY, BUFRKey, FXY,
-    prelude::{BUFRTableB, BUFRTableBitMap, BUFRTableD},
-    tables::{ArchivedBTableEntry, ArchivedDTableEntry},
 };
 use std::{borrow::Cow, fmt::Display, ops::Deref};
 
@@ -1774,7 +1774,7 @@ enum Frame<'v, 'a> {
 
 #[derive(Clone, Copy)]
 enum Descs<'v> {
-    Raw(&'v [genlib::FXY]),
+    Raw(&'v [crate::core::FXY]),
     Archived(&'v [ArchivedFXY]),
 }
 

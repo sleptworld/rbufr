@@ -1,4 +1,4 @@
-use genlib::FXY;
+use crate::core::FXY;
 use nom::{
     IResult,
     bytes::complete::{tag, take},

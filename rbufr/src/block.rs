@@ -1,9 +1,9 @@
 use std::ops::Deref;
 
-use genlib::BUFRTableMPH;
+use crate::core::BUFRTableMPH;
 #[cfg(feature = "opera")]
-use genlib::prelude::BUFRTableBitMap;
-use genlib::tables::TableTypeTrait;
+use crate::core::prelude::BUFRTableBitMap;
+use crate::core::tables::TableTypeTrait;
 
 use crate::errors::Result;
 #[cfg(feature = "opera")]

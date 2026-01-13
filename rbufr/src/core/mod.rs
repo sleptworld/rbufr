@@ -1,12 +1,5 @@
-pub mod config;
-pub mod fr;
-#[cfg(feature = "opera")]
-pub mod opera;
-pub mod pattern;
 pub mod prelude;
 pub mod tables;
-mod utils;
-pub mod wmo;
 use anyhow::Context;
 use memmap2::Mmap;
 use ph::fmph::GOFunction;
@@ -18,15 +11,15 @@ use serde::{Deserialize as SerdeDeserialize, Serialize as SerdeSerialize};
 use std::fmt::Debug;
 use std::io::{Cursor, Write};
 use std::path::Path;
-
-use crate::tables::{TableEntryFull, TableTypeTrait};
+use tables::{TableEntryFull, TableTypeTrait};
+pub mod pattern;
 
 pub trait TableConverter {
     type OutputEntry: TableEntryFull;
     type TableType: TableTypeTrait;
     fn convert<P: AsRef<Path>>(&self, path: P) -> anyhow::Result<Vec<Self::OutputEntry>>;
 
-    fn table_type(&self) -> crate::TableType {
+    fn table_type(&self) -> TableType {
         Self::TableType::TABLE_TYPE
     }
 }

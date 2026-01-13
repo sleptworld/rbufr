@@ -1,13 +1,19 @@
+///
+mod fr;
+mod opera;
+mod wmo;
+///
 use anyhow::{Context, Result, anyhow};
 use clap::{Parser, Subcommand};
-use genlib::{
+#[cfg(feature = "opera")]
+use librbufr::core::{BUFRTableMPH, tables::BitMap};
+use librbufr::core::{
     TableType,
-    config::ScanConfig,
     pattern::{TableKind, TableScanner},
     prelude::{BUFRTableB, BUFRTableD},
 };
-#[cfg(feature = "opera")]
-use genlib::{BUFRTableMPH, opera, tables::BitMap};
+mod config;
+use crate::config::ScanConfig;
 use std::path::{Path, PathBuf};
 
 #[derive(Parser)]
@@ -335,12 +341,12 @@ fn run_with_fallbacks(
 }
 
 fn build_wmo_d(input_path: &Path, output_path: &Path) -> Result<()> {
-    let loader = genlib::wmo::TableLoader::<genlib::wmo::WMODTableLoader>::default();
+    let loader = wmo::WMODTableLoader::default();
     BUFRTableD::build_from_csv(loader, input_path, output_path).map(|_| ())
 }
 
 fn build_fr_d(input_path: &Path, output_path: &Path) -> Result<()> {
-    let loader = genlib::fr::FRDTableLoader::default();
+    let loader = fr::FRDTableLoader::default();
     BUFRTableD::build_from_csv(loader, input_path, output_path).map(|_| ())
 }
 
@@ -370,12 +376,12 @@ fn convert_table_d(input_path: &Path, output_path: &Path, loader_type: &str) -> 
 }
 
 fn build_wmo_b(input_path: &Path, output_path: &Path) -> Result<()> {
-    let loader = genlib::wmo::TableLoader::<genlib::wmo::WMOBTableLoader>::default();
+    let loader = wmo::WMOBTableLoader::default();
     BUFRTableB::build_from_csv(loader, input_path, output_path).map(|_| ())
 }
 
 fn build_fr_b(input_path: &Path, output_path: &Path) -> Result<()> {
-    let loader = genlib::fr::FRBTableLoader::default();
+    let loader = fr::FRBTableLoader::default();
     BUFRTableB::build_from_csv(loader, input_path, output_path).map(|_| ())
 }
 

@@ -1,4 +1,4 @@
-use crate::{
+use librbufr::core::{
     FXY, TableConverter,
     tables::{BitMap, BitMapEntry},
 };

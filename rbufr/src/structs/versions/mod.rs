@@ -3,8 +3,8 @@ pub mod v3;
 pub mod v4;
 
 pub(super) use super::skip1;
+use crate::core::FXY;
 use crate::errors::{Error, Result};
-use genlib::FXY;
 use nom::{
     IResult,
     bytes::complete::{tag, take},

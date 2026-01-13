@@ -1,3 +1,4 @@
+use crate::core::FXY;
 use crate::errors::Result;
 use crate::structs::{tools::parse_descriptors, versions::MessageVersion};
 use nom::{
@@ -62,7 +63,7 @@ impl MessageVersion for BUFRMessageV4 {
         self.section3.data.len() / 2
     }
 
-    fn descriptors(&self) -> Result<Vec<genlib::FXY>> {
+    fn descriptors(&self) -> Result<Vec<FXY>> {
         parse_descriptors(&self.section3.data)
     }
 

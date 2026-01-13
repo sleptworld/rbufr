@@ -3,7 +3,7 @@ use regex::Regex;
 use serde::{Deserialize, Serialize};
 use std::path::Path;
 
-use crate::pattern::{TableFilePattern, TableKind, TableMetadata};
+use librbufr::core::pattern::{TableFilePattern, TableKind, TableMetadata};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PatternConfig {

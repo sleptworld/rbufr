@@ -20,18 +20,74 @@ pip install rbufrp
 ## Quick Start
 
 ```python
-import rbufrp
+from rbufrp import BUFRDecoder
 
-# Decode a BUFR file
+# Read BUFR file
 with open("data.bufr", "rb") as f:
     bufr_data = f.read()
 
-decoder = rbufrp.BUFRDecoder()
-parsed = decoder.decode(bufr_data)
+# Create decoder and decode file
+decoder = BUFRDecoder()
+bufr_file = decoder.decode(bufr_data)
 
-# Access decoded records
-for record in parsed.records:
-    print(f"{record.name}: {record.values} {record.unit}")
+# Iterate through messages
+for message in bufr_file:
+    print(message)
+    print("BUFR Version:", message.version())
+
+    # Parse each message to get records
+    parsed = decoder.parse_message(message)
+
+    # Iterate through records
+    for record in parsed:
+        print(record)
+        # Access record data
+        if record.key():
+            print(f"{record.key()}: {record.value()}")
+```
+
+## Advanced Usage
+
+### Accessing Specific Messages
+
+```python
+# Get specific message by index
+bufr_file = decoder.decode(bufr_data)
+message = bufr_file.get_message(0)
+
+# Get message count
+print(f"Total messages: {bufr_file.message_count()}")
+print(f"Total messages: {len(bufr_file)}")
+```
+
+### Working with Parsed Records
+
+```python
+parsed = decoder.parse_message(message)
+
+# Get record count
+print(f"Total records: {parsed.record_count()}")
+print(f"Total records: {len(parsed)}")
+
+# Access records by index (supports negative indexing)
+first_record = parsed[0]
+last_record = parsed[-1]
+
+# Search for records by key
+temperature_records = parsed.get_record("AIR TEMPERATURE")
+for record in temperature_records:
+    print(f"{record.key()}: {record.value()}")
+```
+
+### Accessing Section 2 (Optional Metadata)
+
+```python
+for message in bufr_file:
+    section2 = message.section2()
+    if section2 is not None:
+        print(f"Section 2 length: {section2.len()}")
+        print(f"Section 2 is empty: {section2.is_empty()}")
+        raw_bytes = section2.get_raw_bytes()
 ```
 
 ## BUFR Tables
@@ -43,6 +99,9 @@ import rbufrp
 
 # Use custom tables directory
 rbufrp.set_tables_path("/path/to/custom/tables")
+
+# Check current tables path
+print(rbufrp.get_tables_path())
 
 # Or via environment variable
 # export RBUFR_TABLES_PATH=/path/to/custom/tables

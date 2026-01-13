@@ -1,9 +1,11 @@
 pub mod block;
+pub mod core;
 pub mod decoder;
 pub mod errors;
 #[cfg(feature = "opera")]
 pub mod opera;
 pub mod parser;
+pub mod prelude;
 pub mod structs;
 pub mod table_path;
 pub mod tables;

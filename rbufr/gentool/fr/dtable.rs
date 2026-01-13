@@ -1,9 +1,9 @@
 use super::EntryLoader;
-use crate::{
+use csv::StringRecord;
+use librbufr::core::{
     FXY,
     tables::{DTable, DTableEntry},
 };
-use csv::StringRecord;
 use std::collections::HashSet;
 
 #[derive(Default)]
